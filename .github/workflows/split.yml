@@ -1,0 +1,60 @@
+name: Stage builder
+on:
+  workflow_call:
+    inputs:
+      part:
+        required: true
+        type: string
+      stage:
+        required: true
+        type: string
+
+env:
+  PART: ${{ inputs.part }}
+  STAGE: ${{ inputs.stage }}
+
+jobs:
+  build:
+    name: Build stage ${{ inputs.part }}
+    runs-on: macos-15
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+      - name: Disable Spotlight
+        run: sudo mdutil -a -i off
+      - name: Install dependencies
+        run: ./install_dependencies.sh
+      - name: Start freeing up storage
+        run: ./free_storage.sh &
+      - name: Download workspace tarball from stage 1
+        uses: actions/download-artifact@v4
+        with:
+          name: stage1
+      - name: Unpack workspace tarball
+        run: |
+          exec 2>&1
+          (set -x; tar -xf stage1.tar.zst)
+          rm stage1.tar.zst
+          cd ungoogled-chromium-macos/build/src/out/Default
+          find obj */obj -type f -exec truncate -s0 {} +
+      - name: Build
+        run: |
+          exec 2>&1
+          cd ungoogled-chromium-macos/build/src
+          (set -x; ninja -C out/Default -f ghci-stage$STAGE.ninja $PART)
+          (cd out/Default && mv -f .ninja_log ghci-stage$STAGE-$PART.ninja_log)
+      - name: Tar up the partial build tree
+        run: |
+          exec 2>&1; set -x
+          tar cf - \
+            ungoogled-chromium-macos/build/src/out/Default/ghci-stage$STAGE-*.ninja_log \
+            ungoogled-chromium-macos/build/src/out/Default/obj \
+            ungoogled-chromium-macos/build/src/out/Default/*/obj | zstd -vv -11 -T0 -o stage$STAGE-$PART.tar.zst
+      - name: Save the partial tree
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage${{inputs.stage}}-${{inputs.part}}
+          compression-level: 0
+          path: stage${{inputs.stage}}-${{inputs.part}}.tar.zst
+          if-no-files-found: error
+          retention-days: 1
