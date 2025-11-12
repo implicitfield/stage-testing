@@ -80,7 +80,7 @@ jobs:
         part: [1, 2, 3, 4, 5]
     uses: ./.github/workflows/split.yml
     with:
-      part: ${{ matrix.part }}
+      part: ${{matrix.part}}
       stage: "2"
 
   # This is just a continuation of stage 2, necessitated by the concurrency limit of 5 for macOS runners.
@@ -91,7 +91,7 @@ jobs:
         part: [6, 7, 8, 9, 10]
     uses: ./.github/workflows/split.yml
     with:
-      part: ${{ matrix.part }}
+      part: ${{matrix.part}}
       stage: "3"
 
   stage-4:
