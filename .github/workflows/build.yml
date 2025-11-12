@@ -113,7 +113,7 @@ jobs:
           exec 2>&1
           for tarball in \
             stage1/stage1.tar.zst \
-            stage2-part*/stage2-part*.tar.zst
+            stage2-part*/stage2-part*.tar.zst \
             stage3-part*/stage3-part*.tar.zst
           do
             (set -x; tar -xf $tarball -k)

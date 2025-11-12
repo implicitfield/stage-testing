@@ -8,6 +8,11 @@ cd ungoogled-chromium-macos
 git submodule init
 git submodule update
 
+cd ungoogled-chromium
+git checkout master
+git pull origin
+cd ..
+
 mkdir -p build/src
 mkdir build/download_cache
 
