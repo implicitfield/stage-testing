@@ -41,13 +41,13 @@ jobs:
         run: |
           exec 2>&1
           cd ungoogled-chromium-macos/build/src
-          (set -x; ninja -C out/Default -f ghci-stage$STAGE.ninja $PART)
-          (cd out/Default && mv -f .ninja_log ghci-stage$STAGE-$PART.ninja_log)
+          (set -x; ninja -C out/Default -f ghci-stage2.ninja $PART)
+          (cd out/Default && mv -f .ninja_log ghci-stage2-$PART.ninja_log)
       - name: Tar up the partial build tree
         run: |
           exec 2>&1; set -x
           tar cf - \
-            ungoogled-chromium-macos/build/src/out/Default/ghci-stage$STAGE-*.ninja_log \
+            ungoogled-chromium-macos/build/src/out/Default/ghci-stage2-*.ninja_log \
             ungoogled-chromium-macos/build/src/out/Default/obj \
             ungoogled-chromium-macos/build/src/out/Default/*/obj | zstd -vv -11 -T0 -o stage$STAGE-$PART.tar.zst
       - name: Save the partial tree

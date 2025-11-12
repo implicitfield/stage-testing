@@ -34,7 +34,7 @@ cd build/src
 ./tools/gn/bootstrap/bootstrap.py -o out/Default/gn --skip-generate-buildfiles
 ./tools/rust/build_bindgen.py --skip-test
 
-./out/Default/gn gen out/Default --fail-on-unused-arg
+./out/Default/gn gen out/Default --fail-on-unused-args
 
 cd ../../..
 

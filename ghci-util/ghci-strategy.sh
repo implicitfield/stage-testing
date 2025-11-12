@@ -194,7 +194,7 @@ echo "$(wc -l < ghci-objects-stage2.tmp.txt) objects to compile in stage 2"
 
 echo "Splitting up stage 2 build into $n_split parts"
 
-split -a ${#n_split} -n r/$n_split \
+gsplit -a ${#n_split} -n r/$n_split \
 	--numeric-suffixes=1 \
 	--additional-suffix=.txt \
 	ghci-objects-stage2.tmp.txt \

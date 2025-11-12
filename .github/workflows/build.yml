@@ -56,10 +56,10 @@ jobs:
       - name: Stage 1 build
         run: |
           exec 2>&1; set -o pipefail
-          (cd ungoogled-chromium-macos/build/src && set -x \
-           ninja -C out/Default -f ghci-stage1.ninja ghci-stage1 \
-          ) 2>&1 | misc/ninja-filter.pl
-          (cd ungoogled-chromium-macos/build/src/out/Default && mv -f .ninja_log ghci-stage1.ninja_log)
+          cd ungoogled-chromium-macos/build/src
+          (set -x; ninja -C out/Default -f ghci-stage1.ninja ghci-stage1)
+          cd out/Default
+          mv -f .ninja_log ghci-stage1.ninja_log
       - name: Tar up the workspace
         run: |
           exec 2>&1; set -o pipefail
@@ -112,11 +112,11 @@ jobs:
         run: |
           exec 2>&1
           for tarball in \
-            stage1/stage1.tar.zstd \
-            stage2-part*/stage2-part*.tar.zstd
-            stage3-part*/stage3-part*.tar.zstd
+            stage1/stage1.tar.zst \
+            stage2-part*/stage2-part*.tar.zst
+            stage3-part*/stage3-part*.tar.zst
           do
-            (set -x; tar -xf $tarball)
+            (set -x; tar -xf $tarball -k)
             rm $tarball
           done
           rmdir stage1 stage2-part* stage3-part*
