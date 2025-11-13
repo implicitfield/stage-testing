@@ -36,6 +36,8 @@ cat flags.macos.gn >> build/src/out/Default/args.gn
 
 cd build/src
 
+python3 build/util/lastchange.py -m DAWN_COMMIT_HASH -s third_party/dawn --revision gpu/webgpu/DAWN_VERSION --header gpu/webgpu/dawn_commit_hash.h
+
 ./tools/gn/bootstrap/bootstrap.py -o out/Default/gn --skip-generate-buildfiles
 ./tools/rust/build_bindgen.py --skip-test
 
