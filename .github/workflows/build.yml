@@ -51,7 +51,7 @@ jobs:
         run: |
           GHCI_STRATEGY_PATH="$PWD/ghci-util/ghci-strategy.sh"
           cd ungoogled-chromium-macos/build/src/out/Default
-          "$GHCI_STRATEGY_PATH" 10 chrome
+          "$GHCI_STRATEGY_PATH" 15 chrome
           find . -type f -name \*.ninja.orig -delete
       - name: Stage 1 build
         run: |
@@ -83,7 +83,6 @@ jobs:
       part: ${{matrix.part}}
       stage: "2"
 
-  # This is just a continuation of stage 2, necessitated by the concurrency limit of 5 for macOS runners.
   stage-3:
     needs: [prepare, stage-1, stage-2]
     strategy:
@@ -96,6 +95,16 @@ jobs:
 
   stage-4:
     needs: [prepare, stage-1, stage-2, stage-3]
+    strategy:
+      matrix:
+        part: [11, 12, 13, 14, 15]
+    uses: ./.github/workflows/split.yml
+    with:
+      part: ${{matrix.part}}
+      stage: "4"
+
+  stage-5:
+    needs: [prepare, stage-1, stage-2, stage-3, stage-4]
     runs-on: macos-15
     steps:
       - name: Clone repository
@@ -114,13 +123,14 @@ jobs:
           for tarball in \
             stage1/stage1.tar.zst \
             stage2-part*/stage2-part*.tar.zst \
-            stage3-part*/stage3-part*.tar.zst
+            stage3-part*/stage3-part*.tar.zst \
+            stage3-part*/stage4-part*.tar.zst
           do
             (set -x; tar -xf $tarball -k)
             rm $tarball
           done
-          rmdir stage1 stage2-part* stage3-part*
-      - name: Stage 4 build
+          rmdir stage1 stage2-part* stage3-part* stage4-part*
+      - name: Stage 5 build
         run: |
           DMG_PATH="$PWD/ungoogled-chromium.dmg"
           cd ungoogled-chromium-macos/build/src
