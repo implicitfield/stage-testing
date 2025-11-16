@@ -123,6 +123,9 @@ jobs:
         run: |
           DMG_PATH="$PWD/ungoogled-chromium.dmg"
           cd ungoogled-chromium-macos/build/src
+          # Needed to prevent ninja from regenerating its own build files,
+          # which would overwrite the customizations made by ghci-strategy.sh.
+          touch out/Default/build.ninja.stamp
           (set -x; ninja -C out/Default chrome)
           codesign --force --deep --sign - out/Default/Chromium.app
           chrome/installer/mac/pkg-dmg \
