@@ -33,6 +33,7 @@ rm -rf build/download_cache
 
 cp ungoogled-chromium/flags.gn build/src/out/Default/args.gn
 cat flags.macos.gn >> build/src/out/Default/args.gn
+echo "enable_precompiled_headers=true" >> build/src/out/Default/args.gn
 
 cd build/src
 
