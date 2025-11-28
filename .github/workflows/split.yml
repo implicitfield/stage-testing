@@ -36,7 +36,7 @@ jobs:
           (set -x; tar -xf stage1.tar.zst)
           rm stage1.tar.zst
           cd ungoogled-chromium-macos/build/src/out/Default
-          find obj */obj -type f -exec truncate -s0 {} +
+          find obj */obj ! -name '*.gch' -type f -exec truncate -s0 {} +
       - name: Build
         run: |
           exec 2>&1

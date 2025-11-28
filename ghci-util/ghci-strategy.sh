@@ -138,8 +138,8 @@ cat ghci-check.tmp.txt \
 echo "$(wc -l < ghci-objdeps.txt) object dependencies to build in stage 1"
 
 # enable_precompiled_headers=true
-(grep '/precompile\.cc\.obj$'   ghci-objects.txt    || :
- grep '/precompile\.h-cc\.gch$' ghci-inputs.tmp.txt || :
+(grep '/precompile\.h-cc\.gch$' ghci-inputs.tmp.txt || :
+ grep '/precompile\.h-mm\.gch$' ghci-inputs.tmp.txt || :
 ) > ghci-pchdeps.txt
 
 test ! -s ghci-pchdeps.txt \
