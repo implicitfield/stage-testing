@@ -9,9 +9,11 @@ git submodule init
 git submodule update
 
 cd ungoogled-chromium
-git checkout master
-git pull origin
+git fetch origin pull/3570/head
+git checkout FETCH_HEAD
 cd ..
+
+gsed '$ d' -i patches/series
 
 mkdir -p build/src
 mkdir build/download_cache
@@ -36,8 +38,6 @@ cat flags.macos.gn >> build/src/out/Default/args.gn
 echo "enable_precompiled_headers=true" >> build/src/out/Default/args.gn
 
 cd build/src
-
-python3 build/util/lastchange.py -m DAWN_COMMIT_HASH -s third_party/dawn --revision gpu/webgpu/DAWN_VERSION --header gpu/webgpu/dawn_commit_hash.h
 
 ./tools/gn/bootstrap/bootstrap.py -o out/Default/gn --skip-generate-buildfiles
 ./tools/rust/build_bindgen.py --skip-test
