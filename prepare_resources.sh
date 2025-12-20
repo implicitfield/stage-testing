@@ -2,6 +2,7 @@
 
 set -eu
 
+echo "::group::Fetch and prepare repositories"
 git clone https://github.com/ungoogled-software/ungoogled-chromium-macos.git
 cd ungoogled-chromium-macos
 
@@ -17,9 +18,13 @@ gsed '$ d' -i patches/series
 
 mkdir -p build/src
 mkdir build/download_cache
+echo "::endgroup::"
 
+echo "::group::Fetch sources"
 ./retrieve_and_unpack_resource.sh -d -g arm64
+echo "::endgroup::"
 
+echo "::group::Apply patches with quilt"
 ./devutils/update_patches.sh merge
 alias quilt='quilt --quiltrc -'
 PLATFORM_ROOT="$PWD"
@@ -37,15 +42,21 @@ export LESS=""
 export QUILT_PAGER="less -FRX"
 cd build/src
 quilt push -a --refresh
+echo "::endgroup::"
+echo "::group::Remove patches"
 quilt pop -a
 cd ../..
 ./devutils/update_patches.sh unmerge
 git checkout HEAD -- patches/series
-echo "::group::Diff of refreshed patches"
+echo "::endgroup::"
+
+echo "::group::Repository diff"
 git --no-pager diff
 echo "::endgroup::"
+
 git reset --hard
 
+echo "::group::Prepare source tree"
 gsed '$ d' -i patches/series
 
 mkdir -p build/src/out/Default
@@ -64,7 +75,9 @@ rm -rf build/download_cache
 cp ungoogled-chromium/flags.gn build/src/out/Default/args.gn
 cat flags.macos.gn >> build/src/out/Default/args.gn
 echo "enable_precompiled_headers=true" >> build/src/out/Default/args.gn
+echo "::endgroup::"
 
+echo "::group::Prepare for stage 1"
 cd build/src
 
 ./tools/gn/bootstrap/bootstrap.py -o out/Default/gn --skip-generate-buildfiles
@@ -75,3 +88,4 @@ cd build/src
 cd ../../..
 
 tar -c -f - . | zstd -vv -11 -T0 -o resources.tar.zst
+echo "::endgroup::"
