@@ -1,5 +1,6 @@
 name: Build, package and release ungoogled-chromium
 on:
+  workflow_dispatch:
   push:
     branches: [ "main" ]
   pull_request:
