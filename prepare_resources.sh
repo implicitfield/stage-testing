@@ -9,8 +9,8 @@ git submodule init
 git submodule update
 
 cd ungoogled-chromium
-git fetch origin pull/3570/head
-git checkout FETCH_HEAD
+git checkout master
+git pull origin
 cd ..
 
 gsed '$ d' -i patches/series
@@ -19,6 +19,34 @@ mkdir -p build/src
 mkdir build/download_cache
 
 ./retrieve_and_unpack_resource.sh -d -g arm64
+
+./devutils/update_patches.sh merge
+alias quilt='quilt --quiltrc -'
+PLATFORM_ROOT="$PWD"
+export QUILT_PATCHES="$PLATFORM_ROOT/patches"
+export QUILT_SERIES="series.merged"
+export QUILT_PUSH_ARGS="--color=auto"
+export QUILT_DIFF_OPTS="--show-c-function"
+export QUILT_PATCH_OPTS="--unified --reject-format=unified"
+export QUILT_DIFF_ARGS="-p ab --no-timestamps --no-index --color=auto"
+export QUILT_REFRESH_ARGS="-p ab --no-timestamps --no-index"
+export QUILT_COLORS="diff_hdr=1;32:diff_add=1;34:diff_rem=1;31:diff_hunk=1;33:diff_ctx=35:diff_cctx=33"
+export QUILT_SERIES_ARGS="--color=auto"
+export QUILT_PATCHES_ARGS="--color=auto"
+export LESS=""
+export QUILT_PAGER="less -FRX"
+cd build/src
+quilt push -a --refresh
+quilt pop -a
+cd ../..
+./devutils/update_patches.sh unmerge
+git checkout HEAD -- patches/series
+echo "::group::Diff of refreshed patches"
+git --no-pager diff
+echo "::endgroup::"
+git reset --hard
+
+gsed '$ d' -i patches/series
 
 mkdir -p build/src/out/Default
 
